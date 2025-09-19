@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Party RSVP</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="You're invited! RSVP in one click." />
+  <style>
+    :root{
+      --bg:#0f1320; --card:#161b2e; --text:#e8e9ef; --muted:#aab0c0;
+      --accent:#6ee7ff; --accent2:#a78bfa; --ok:#34d399; --no:#fb7185; --maybe:#fbbf24;
+      --border:rgba(255,255,255,.08);
+    }
+    html,body{height:100%}
+    body{
+      margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, "Helvetica Neue", Arial;
+      background: radial-gradient(1200px 800px at 20% 10%, #1b2140 0%, #0f1320 60%), var(--bg);
+      color:var(--text); display:grid; place-items:center; padding:24px;
+    }
+    .wrap{width:min(980px, 100%); display:grid; gap:18px}
+    .hero{
+      background: linear-gradient(135deg, rgba(167,139,250,.15), rgba(110,231,255,.05));
+      border:1px solid var(--border); border-radius:20px; padding:20px;
+      display:grid; gap:16px;
+    }
+    .flyer{ display:grid; grid-template-columns:1fr 1fr; gap:16px; align-items:center; }
+    @media (max-width:800px){ .flyer{ grid-template-columns:1fr; } }
+
+    /* --- Slider --- */
+    .poster{
+      position:relative; border:1px solid var(--border); border-radius:16px; overflow:hidden;
+      background:#0e1221; aspect-ratio:4/5;
+    }
+    .slider-track{
+      display:flex; width:300%; height:100%; transform:translateX(0); transition: transform .5s ease;
+    }
+    .slide{ width:100%; height:100%; flex:0 0 100%; }
+    .slide img{ width:100%; height:100%; object-fit:cover; display:block; }
+
+    .nav-btn{
+      position:absolute; top:50%; translate:0 -50%; border:0; background:rgba(0,0,0,.35);
+      color:#fff; width:40px; height:40px; border-radius:50%; cursor:pointer;
+      display:grid; place-items:center; font-size:18px;
+    }
+    .nav-btn:hover{ background:rgba(0,0,0,.5); }
+    .prev{ left:10px; } .next{ right:10px; }
+
+    .dots{
+      position:absolute; left:0; right:0; bottom:10px; display:flex; gap:8px; justify-content:center;
+    }
+    .dot{
+      width:9px; height:9px; border-radius:50%; background:rgba(255,255,255,.4); border:0; cursor:pointer;
+    }
+    .dot.active{ background:#fff; }
+
+    /* --- Form/card --- */
+    .card{ background:var(--card); border:1px solid var(--border); border-radius:16px; padding:18px; }
+    form{ display:grid; gap:14px }
+    .grid-2{ display:grid; gap:12px }
+    @media (min-width:720px){ .grid-2{ grid-template-columns:1fr 1fr } }
+    label{ font-size:13px; color:var(--muted) }
+    input, textarea{
+      width:100%; box-sizing:border-box; background:#0e1221; color:var(--text);
+      border:1px solid var(--border); border-radius:12px; padding:12px; outline:none;
+    }
+    input:focus, textarea:focus{ border-color:#2b8eff; box-shadow:0 0 0 3px rgba(43,142,255,.15) }
+    .choices{ display:flex; gap:10px; flex-wrap:wrap }
+    .choice{
+      flex:1 1 120px; text-align:center; padding:12px; border-radius:12px; cursor:pointer;
+      border:1px solid var(--border); user-select:none;
+    }
+    .choice:hover{ transform:translateY(-1px) }
+    .choice[data-val="Yes"]{ background:rgba(52,211,153,.08) }
+    .choice[data-val="No"]{ background:rgba(251,113,133,.08) }
+    .choice[data-val="Maybe"]{ background:rgba(251,191,36,.08) }
+    .choice.active{ border-color:#2b8eff; box-shadow:inset 0 0 0 1px #2b8eff }
+    .row{ display:flex; gap:10px; align-items:center; flex-wrap:wrap }
+    .btn{
+      padding:12px 16px; border-radius:12px; border:1px solid var(--border);
+      background:linear-gradient(180deg, #1a2140, #141a2d); color:var(--text);
+      cursor:pointer; font-weight:600;
+    }
+    .btn.primary{ background:linear-gradient(180deg, #2b8eff, #1a6add); border-color:#1b4ea1 }
+    .hint{ font-size:12px; color:var(--muted) }
+    .success, .error{ padding:12px 14px; border-radius:12px; font-size:14px; display:none; }
+    .success{ background:rgba(52,211,153,.12); border:1px solid rgba(52,211,153,.35) }
+    .error{ background:rgba(251,113,133,.12); border:1px solid rgba(251,113,133,.35) }
+    .footnote{ color:var(--muted); font-size:12px; text-align:center }
+    .hide{ display:none }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="flyer">
+        <div class="poster" id="poster">
+          <!-- 🚨🚨🚨 YOUR 3 IMAGES (placed next to index.html) 🚨🚨🚨
+               Make sure filenames are exactly: 3.png, 4.png, 5.png
+               If your OS hides extensions, confirm they really end with .png
+          -->
+          <div class="slider-track" id="sliderTrack">
+            <div class="slide"><img src="./3.png" alt="Flyer 1" loading="lazy"></div>
+            <div class="slide"><img src="./4.png" alt="Flyer 2" loading="lazy"></div>
+            <div class="slide"><img src="./5.png" alt="Flyer 3" loading="lazy"></div>
+          </div>
+          <button class="nav-btn prev" id="prevBtn" aria-label="Previous">‹</button>
+          <button class="nav-btn next" id="nextBtn" aria-label="Next">›</button>
+          <div class="dots" id="dots"></div>
+        </div>
+
+        <div class="card">
+          <h3 style="margin:.25rem 0 10px">RSVP</h3>
+          <!-- ❗ Paste your Apps Script Web App URL below -->
+          <form id="rsvpForm" method="POST">
+            <input type="hidden" name="rsvp" id="rsvpInput" required />
+            <div class="choices">
+              <div class="choice" data-val="Yes">✅ Yes, I’m in</div>
+              <div class="choice" data-val="Maybe">🤔 I’ll think about it</div>
+              <div class="choice" data-val="No">❌ Sorry, I’m out</div>
+            </div>
+
+            <div class="grid-2">
+              <div>
+                <label for="name">Your name</label>
+                <input type="text" id="name" name="name" required />
+              </div>
+              <div>
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required />
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div>
+                <label for="phone">Phone (optional)</label>
+                <input type="tel" id="phone" name="phone" />
+              </div>
+              <div>
+                <label for="guests"># of guests</label>
+                <input type="number" min="1" max="20" id="guests" name="guests" value="1" />
+              </div>
+            </div>
+
+            <div>
+              <label for="notes">Notes</label>
+              <textarea id="notes" name="notes" rows="3"></textarea>
+            </div>
+
+            <input type="text" name="_gotcha" class="hide" />
+
+            <div class="row">
+              <button class="btn primary" type="submit">Submit RSVP</button>
+              <button class="btn" type="reset">Reset</button>
+              <span class="hint">Confirmation will appear below.</span>
+            </div>
+
+            <div id="success" class="success">Thanks! Your RSVP was received. 🎉</div>
+            <div id="error" class="error">Hmm, something went wrong. Please try again.</div>
+          </form>
+          <div class="footnote">Your info is used only for this event.</div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    /* ====== CONFIG: PASTE YOUR APPS SCRIPT URL HERE ====== */
+    const WEB_APP_URL = "https://script.google.com/macros/s/PASTE_YOUR_WEB_APP_URL_HERE/exec";
+    /* ===================================================== */
+
+    // attach action at runtime so you only edit in one place
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('rsvpForm');
+      form.action = WEB_APP_URL;
+    });
+
+    /* RSVP choice toggle */
+    const choices = document.querySelectorAll('.choice');
+    const rsvpInput = document.getElementById('rsvpInput');
+    choices.forEach(c => {
+      c.addEventListener('click', () => {
+        choices.forEach(x => x.classList.remove('active'));
+        c.classList.add('active');
+        rsvpInput.value = c.dataset.val;
+      });
+    });
+
+    /* Submit to Google Apps Script (Sheets) */
+    const form = document.getElementById('rsvpForm');
+    const successEl = document.getElementById('success');
+    const errorEl = document.getElementById('error');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      successEl.style.display = 'none';
+      errorEl.style.display = 'none';
+
+      if (!rsvpInput.value) {
+        errorEl.textContent = 'Please choose Yes / No / Maybe.';
+        errorEl.style.display = 'block';
+        return;
+      }
+      try {
+        const res = await fetch(form.action, {
+          method: 'POST',
+          body: new FormData(form),
+          headers: { 'Accept': 'application/json' }
+        });
+        if (res.ok) {
+          form.reset();
+          choices.forEach(x => x.classList.remove('active'));
+          rsvpInput.value = '';
+          successEl.style.display = 'block';
+        } else {
+          errorEl.style.display = 'block';
+        }
+      } catch (err) {
+        errorEl.style.display = 'block';
+      }
+    });
+
+    /* --- Slider logic (auto-play, arrows, dots, swipe) --- */
+    const track = document.getElementById('sliderTrack');
+    const slides = Array.from(track.children);
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const dotsWrap = document.getElementById('dots');
+    let index = 0;
+    const total = slides.length;
+    let autoTimer = null;
+    const AUTO_MS = 3500;
+
+    // dots
+    const dots = slides.map((_, i) => {
+      const b = document.createElement('button');
+      b.className = 'dot' + (i===0 ? ' active' : '');
+      b.setAttribute('aria-label', 'Go to slide ' + (i+1));
+      b.addEventListener('click', () => goTo(i, true));
+      dotsWrap.appendChild(b);
+      return b;
+    });
+
+    function update() {
+      track.style.transform = `translateX(-${index * 100}%)`;
+      dots.forEach((d, i) => d.classList.toggle('active', i === index));
+    }
+    function goTo(i, pause=false) {
+      index = (i + total) % total;
+      update();
+      if (pause) restartAuto();
+    }
+    function next(){ goTo(index + 1, true); }
+    function prev(){ goTo(index - 1, true); }
+
+    nextBtn.addEventListener('click', next);
+    prevBtn.addEventListener('click', prev);
+
+    function startAuto(){ stopAuto(); autoTimer = setInterval(() => goTo(index + 1), AUTO_MS); }
+    function stopAuto(){ if (autoTimer) clearInterval(autoTimer), autoTimer = null; }
+    function restartAuto(){ startAuto(); }
+
+    // pause on hover
+    const poster = document.getElementById('poster');
+    poster.addEventListener('mouseenter', stopAuto);
+    poster.addEventListener('mouseleave', startAuto);
+
+    // swipe (touch)
+    let startX = 0, currentX = 0, dragging = false;
+    track.addEventListener('touchstart', (e) => {
+      dragging = true; startX = e.touches[0].clientX; currentX = startX; stopAuto();
+    }, {passive:true});
+    track.addEventListener('touchmove', (e) => { if(dragging) currentX = e.touches[0].clientX; }, {passive:true});
+    track.addEventListener('touchend', () => {
+      const dx = currentX - startX;
+      const THRESH = 40;
+      if (dx > THRESH) prev();
+      else if (dx < -THRESH) next();
+      dragging = false; startAuto();
+    });
+
+    // keyboard
+    poster.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') next();
+      if (e.key === 'ArrowLeft') prev();
+    });
+    poster.tabIndex = 0;
+
+    // kick off
+    update(); startAuto();
+  </script>
+</body>
+</html>
