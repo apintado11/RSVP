@@ -35,7 +35,13 @@
       display:flex; width:300%; height:100%; transform:translateX(0); transition: transform .5s ease;
     }
     .slide{ width:100%; height:100%; flex:0 0 100%; }
-    .slide img{ width:100%; height:100%; object-fit:cover; display:block; }
+    .slide img{
+      width:100%;
+      height:100%;
+      object-fit:contain;
+      background:#000;
+      display:block;
+    }
 
     .nav-btn{
       position:absolute; top:50%; translate:0 -50%; border:0; background:rgba(0,0,0,.35);
@@ -87,6 +93,17 @@
     .error{ background:rgba(251,113,133,.12); border:1px solid rgba(251,113,133,.35) }
     .footnote{ color:var(--muted); font-size:12px; text-align:center }
     .hide{ display:none }
+
+    .info-row{
+      display:flex; align-items:center; gap:10px; margin:8px 0 2px;
+      flex-wrap:wrap;
+    }
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:6px 10px; border-radius:999px; border:1px solid var(--border);
+      background:#0e1221; color:var(--text); font-size:12px; text-decoration:none;
+    }
+    .pill:hover{ border-color:#2b8eff; box-shadow:0 0 0 3px rgba(43,142,255,.15) }
   </style>
 </head>
 <body>
@@ -94,14 +111,10 @@
     <section class="hero">
       <div class="flyer">
         <div class="poster" id="poster">
-          <!-- 🚨🚨🚨 YOUR 3 IMAGES (placed next to index.html) 🚨🚨🚨
-               Make sure filenames are exactly: 3.png, 4.png, 5.png
-               If your OS hides extensions, confirm they really end with .png
-          -->
           <div class="slider-track" id="sliderTrack">
-            <div class="slide"><img src="./3.png" alt="Flyer 1" loading="lazy"></div>
-            <div class="slide"><img src="./4.png" alt="Flyer 2" loading="lazy"></div>
-            <div class="slide"><img src="./5.png" alt="Flyer 3" loading="lazy"></div>
+            <div class="slide"><img src="./3.png" alt="Flyer 1"></div>
+            <div class="slide"><img src="./4.png" alt="Flyer 2"></div>
+            <div class="slide"><img src="./5.png" alt="Flyer 3"></div>
           </div>
           <button class="nav-btn prev" id="prevBtn" aria-label="Previous">‹</button>
           <button class="nav-btn next" id="nextBtn" aria-label="Next">›</button>
@@ -109,8 +122,14 @@
         </div>
 
         <div class="card">
-          <h3 style="margin:.25rem 0 10px">RSVP</h3>
-          <!-- ❗ Paste your Apps Script Web App URL below -->
+          <h3 style="margin:.25rem 0 6px">RSVP</h3>
+          <div class="info-row">
+            <a class="pill" target="_blank" rel="noopener"
+               href="https://www.google.com/maps?q=5+Keith+Road,+Hopatcong,+NJ+07843">
+              📍 5 Keith Road, Hopatcong, NJ 07843 — Get Directions
+            </a>
+          </div>
+
           <form id="rsvpForm" method="POST">
             <input type="hidden" name="rsvp" id="rsvpInput" required />
             <div class="choices">
@@ -125,25 +144,21 @@
                 <input type="text" id="name" name="name" required />
               </div>
               <div>
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" required />
-              </div>
-            </div>
-
-            <div class="grid-2">
-              <div>
-                <label for="phone">Phone (optional)</label>
-                <input type="tel" id="phone" name="phone" />
-              </div>
-              <div>
-                <label for="guests"># of guests</label>
-                <input type="number" min="1" max="20" id="guests" name="guests" value="1" />
+                <label for="phone">Phone</label>
+                <input type="tel" id="phone" name="phone"
+                       placeholder="We’ll hit you up if anything changes" />
               </div>
             </div>
 
             <div>
+              <label for="guests"># of guests</label>
+              <input type="number" min="1" max="20" id="guests" name="guests" value="1" />
+            </div>
+
+            <div>
               <label for="notes">Notes</label>
-              <textarea id="notes" name="notes" rows="3"></textarea>
+              <textarea id="notes" name="notes" rows="3"
+                placeholder="What music do you wanna hear? 🎶&#10;What drinks do you like? 🍹&#10;What costume are you gonna wear? 🎭"></textarea>
             </div>
 
             <input type="text" name="_gotcha" class="hide" />
@@ -164,17 +179,12 @@
   </div>
 
   <script>
-    /* ====== CONFIG: PASTE YOUR APPS SCRIPT URL HERE ====== */
     const WEB_APP_URL = "https://script.google.com/macros/s/PASTE_YOUR_WEB_APP_URL_HERE/exec";
-    /* ===================================================== */
-
-    // attach action at runtime so you only edit in one place
     document.addEventListener('DOMContentLoaded', () => {
       const form = document.getElementById('rsvpForm');
       form.action = WEB_APP_URL;
     });
 
-    /* RSVP choice toggle */
     const choices = document.querySelectorAll('.choice');
     const rsvpInput = document.getElementById('rsvpInput');
     choices.forEach(c => {
@@ -185,7 +195,6 @@
       });
     });
 
-    /* Submit to Google Apps Script (Sheets) */
     const form = document.getElementById('rsvpForm');
     const successEl = document.getElementById('success');
     const errorEl = document.getElementById('error');
@@ -219,7 +228,6 @@
       }
     });
 
-    /* --- Slider logic (auto-play, arrows, dots, swipe) --- */
     const track = document.getElementById('sliderTrack');
     const slides = Array.from(track.children);
     const prevBtn = document.getElementById('prevBtn');
@@ -230,11 +238,9 @@
     let autoTimer = null;
     const AUTO_MS = 3500;
 
-    // dots
     const dots = slides.map((_, i) => {
       const b = document.createElement('button');
       b.className = 'dot' + (i===0 ? ' active' : '');
-      b.setAttribute('aria-label', 'Go to slide ' + (i+1));
       b.addEventListener('click', () => goTo(i, true));
       dotsWrap.appendChild(b);
       return b;
@@ -259,12 +265,10 @@
     function stopAuto(){ if (autoTimer) clearInterval(autoTimer), autoTimer = null; }
     function restartAuto(){ startAuto(); }
 
-    // pause on hover
     const poster = document.getElementById('poster');
     poster.addEventListener('mouseenter', stopAuto);
     poster.addEventListener('mouseleave', startAuto);
 
-    // swipe (touch)
     let startX = 0, currentX = 0, dragging = false;
     track.addEventListener('touchstart', (e) => {
       dragging = true; startX = e.touches[0].clientX; currentX = startX; stopAuto();
@@ -272,20 +276,17 @@
     track.addEventListener('touchmove', (e) => { if(dragging) currentX = e.touches[0].clientX; }, {passive:true});
     track.addEventListener('touchend', () => {
       const dx = currentX - startX;
-      const THRESH = 40;
-      if (dx > THRESH) prev();
-      else if (dx < -THRESH) next();
+      if (dx > 40) prev();
+      else if (dx < -40) next();
       dragging = false; startAuto();
     });
 
-    // keyboard
     poster.addEventListener('keydown', (e) => {
       if (e.key === 'ArrowRight') next();
       if (e.key === 'ArrowLeft') prev();
     });
     poster.tabIndex = 0;
 
-    // kick off
     update(); startAuto();
   </script>
 </body>
