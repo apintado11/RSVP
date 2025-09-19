@@ -32,14 +32,19 @@
       background:#0e1221; aspect-ratio:4/5;
     }
     .slider-track{
-      display:flex; width:300%; height:100%; transform:translateX(0); transition: transform .5s ease;
+      display:flex; width:calc(100% * 3); height:100%;
+      transform:translateX(0); transition: transform .5s ease;
     }
-    .slide{ width:100%; height:100%; flex:0 0 100%; }
-    .slide img{
-      width:100%;
-      height:100%;
-      object-fit:contain;
+    .slide{
+      width:100%; height:100%; flex:0 0 100%;
+      display:grid; place-items:center;
       background:#000;
+    }
+    .slide img{
+      max-width:100%; max-height:100%;
+      width:auto; height:auto;
+      object-fit:contain;
+      object-position:center center;
       display:block;
     }
 
@@ -54,9 +59,7 @@
     .dots{
       position:absolute; left:0; right:0; bottom:10px; display:flex; gap:8px; justify-content:center;
     }
-    .dot{
-      width:9px; height:9px; border-radius:50%; background:rgba(255,255,255,.4); border:0; cursor:pointer;
-    }
+    .dot{ width:9px; height:9px; border-radius:50%; background:rgba(255,255,255,.4); border:0; cursor:pointer; }
     .dot.active{ background:#fff; }
 
     /* --- Form/card --- */
@@ -94,14 +97,11 @@
     .footnote{ color:var(--muted); font-size:12px; text-align:center }
     .hide{ display:none }
 
-    .info-row{
-      display:flex; align-items:center; gap:10px; margin:8px 0 2px;
-      flex-wrap:wrap;
-    }
+    .info-row{ display:flex; align-items:center; gap:10px; margin:8px 0 2px; flex-wrap:wrap; }
     .pill{
       display:inline-flex; align-items:center; gap:8px;
       padding:6px 10px; border-radius:999px; border:1px solid var(--border);
-      background:#0e1221; color:var(--text); font-size:12px; text-decoration:none;
+      background:#0e1221; color:#e8e9ef; font-size:12px; text-decoration:none;
     }
     .pill:hover{ border-color:#2b8eff; box-shadow:0 0 0 3px rgba(43,142,255,.15) }
   </style>
@@ -140,12 +140,12 @@
 
             <div class="grid-2">
               <div>
-                <label for="name">Your name</label>
+                <label for="name">Your name *</label>
                 <input type="text" id="name" name="name" required />
               </div>
               <div>
-                <label for="phone">Phone</label>
-                <input type="tel" id="phone" name="phone"
+                <label for="phone">Phone *</label>
+                <input type="tel" id="phone" name="phone" required
                        placeholder="We’ll hit you up if anything changes" />
               </div>
             </div>
@@ -156,9 +156,15 @@
             </div>
 
             <div>
+              <label for="music">What music do you want to play?</label>
+              <textarea id="music" name="music" rows="2"
+                placeholder="List songs, genres, or artists you want to hear"></textarea>
+            </div>
+
+            <div>
               <label for="notes">Notes</label>
               <textarea id="notes" name="notes" rows="3"
-                placeholder="What music do you wanna hear? 🎶&#10;What drinks do you like? 🍹&#10;What costume are you gonna wear? 🎭"></textarea>
+                placeholder="What drinks do you like? 🍹&#10;What costume are you gonna wear? 🎭"></textarea>
             </div>
 
             <input type="text" name="_gotcha" class="hide" />
@@ -228,6 +234,7 @@
       }
     });
 
+    // Slider logic
     const track = document.getElementById('sliderTrack');
     const slides = Array.from(track.children);
     const prevBtn = document.getElementById('prevBtn');
@@ -235,8 +242,8 @@
     const dotsWrap = document.getElementById('dots');
     let index = 0;
     const total = slides.length;
-    let autoTimer = null;
     const AUTO_MS = 3500;
+    let autoTimer = null;
 
     const dots = slides.map((_, i) => {
       const b = document.createElement('button');
@@ -247,7 +254,8 @@
     });
 
     function update() {
-      track.style.transform = `translateX(-${index * 100}%)`;
+      const shift = (index * (100 / total));
+      track.style.transform = `translateX(-${shift}%)`;
       dots.forEach((d, i) => d.classList.toggle('active', i === index));
     }
     function goTo(i, pause=false) {
