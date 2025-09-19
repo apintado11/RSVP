@@ -4,193 +4,186 @@
   <meta charset="utf-8" />
   <title>Party RSVP</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="You're invited! RSVP in one click." />
+  <meta name="description" content="You're invited! RSVP in one tap." />
   <style>
     :root{
-      --bg:#0f1320; --card:#161b2e; --text:#e8e9ef; --muted:#aab0c0;
-      --accent:#6ee7ff; --accent2:#a78bfa; --ok:#34d399; --no:#fb7185; --maybe:#fbbf24;
+      --bg:#0b0d16; --card:#12172a; --text:#eef0f6; --muted:#a7afc3;
+      --accent:#2b8eff; --ok:#34d399; --no:#fb7185; --maybe:#fbbf24;
       --border:rgba(255,255,255,.08);
     }
+    /* Global */
+    html{scroll-behavior:smooth}
     html,body{height:100%}
     body{
       margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, "Helvetica Neue", Arial;
-      background: radial-gradient(1200px 800px at 20% 10%, #1b2140 0%, #0f1320 60%), var(--bg);
-      color:var(--text); display:grid; place-items:center; padding:24px;
+      color:var(--text); background:var(--bg);
     }
-    .wrap{width:min(980px, 100%); display:grid; gap:18px}
+    a{color:inherit}
+
+    /* Container */
+    .wrap{max-width:720px; margin:0 auto; padding:16px}
+    .topbar{
+      position:sticky; top:0; z-index:10;
+      backdrop-filter: blur(6px);
+      background:linear-gradient(180deg, rgba(18,23,42,.85), rgba(18,23,42,.35));
+      border-bottom:1px solid var(--border);
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      padding:10px 12px; margin-bottom:12px; border-radius:0 0 16px 16px;
+    }
+    .brand{font-weight:700; letter-spacing:.3px}
+    .cta{
+      border:1px solid var(--border); background:var(--accent); color:white;
+      padding:10px 14px; border-radius:999px; font-weight:700; cursor:pointer;
+    }
+
+    /* Hero image block */
     .hero{
-      background: linear-gradient(135deg, rgba(167,139,250,.15), rgba(110,231,255,.05));
-      border:1px solid var(--border); border-radius:20px; padding:20px;
-      display:grid; gap:16px;
+      border:1px solid var(--border); border-radius:18px; overflow:hidden;
+      background:#000; margin-bottom:14px;
     }
-    .flyer{ display:grid; grid-template-columns:1fr 1fr; gap:16px; align-items:center; }
-    @media (max-width:800px){ .flyer{ grid-template-columns:1fr; } }
-
-    /* --- Slider --- */
-    .poster{
-      position:relative; border:1px solid var(--border); border-radius:16px; overflow:hidden;
-      background:#0e1221; aspect-ratio:4/5;
+    .hero figure{margin:0; display:grid; place-items:center; background:#000}
+    .hero img{
+      display:block; width:100%; height:auto; object-fit:contain; object-position:center;
+      aspect-ratio:auto; /* respect PNG’s natural ratio */
     }
-    .slider-track{
-      display:flex; width:calc(100% * 3); height:100%;
-      transform:translateX(0); transition: transform .5s ease;
+    .hero .meta{
+      display:flex; gap:10px; align-items:center; justify-content:space-between;
+      padding:10px 12px; font-size:13px; color:var(--muted);
+      border-top:1px solid var(--border); background:#0e1428;
     }
-    .slide{
-      width:100%; height:100%; flex:0 0 100%;
-      display:grid; place-items:center;
-      background:#000;
-    }
-    .slide img{
-      max-width:100%; max-height:100%;
-      width:auto; height:auto;
-      object-fit:contain;
-      object-position:center center;
-      display:block;
-    }
-
-    .nav-btn{
-      position:absolute; top:50%; translate:0 -50%; border:0; background:rgba(0,0,0,.35);
-      color:#fff; width:40px; height:40px; border-radius:50%; cursor:pointer;
-      display:grid; place-items:center; font-size:18px;
-    }
-    .nav-btn:hover{ background:rgba(0,0,0,.5); }
-    .prev{ left:10px; } .next{ right:10px; }
-
-    .dots{
-      position:absolute; left:0; right:0; bottom:10px; display:flex; gap:8px; justify-content:center;
-    }
-    .dot{ width:9px; height:9px; border-radius:50%; background:rgba(255,255,255,.4); border:0; cursor:pointer; }
-    .dot.active{ background:#fff; }
-
-    /* --- Form/card --- */
-    .card{ background:var(--card); border:1px solid var(--border); border-radius:16px; padding:18px; }
-    form{ display:grid; gap:14px }
-    .grid-2{ display:grid; gap:12px }
-    @media (min-width:720px){ .grid-2{ grid-template-columns:1fr 1fr } }
-    label{ font-size:13px; color:var(--muted) }
-    input, textarea{
-      width:100%; box-sizing:border-box; background:#0e1221; color:var(--text);
-      border:1px solid var(--border); border-radius:12px; padding:12px; outline:none;
-    }
-    input:focus, textarea:focus{ border-color:#2b8eff; box-shadow:0 0 0 3px rgba(43,142,255,.15) }
-    .choices{ display:flex; gap:10px; flex-wrap:wrap }
-    .choice{
-      flex:1 1 120px; text-align:center; padding:12px; border-radius:12px; cursor:pointer;
-      border:1px solid var(--border); user-select:none;
-    }
-    .choice:hover{ transform:translateY(-1px) }
-    .choice[data-val="Yes"]{ background:rgba(52,211,153,.08) }
-    .choice[data-val="No"]{ background:rgba(251,113,133,.08) }
-    .choice[data-val="Maybe"]{ background:rgba(251,191,36,.08) }
-    .choice.active{ border-color:#2b8eff; box-shadow:inset 0 0 0 1px #2b8eff }
-    .row{ display:flex; gap:10px; align-items:center; flex-wrap:wrap }
-    .btn{
-      padding:12px 16px; border-radius:12px; border:1px solid var(--border);
-      background:linear-gradient(180deg, #1a2140, #141a2d); color:var(--text);
-      cursor:pointer; font-weight:600;
-    }
-    .btn.primary{ background:linear-gradient(180deg, #2b8eff, #1a6add); border-color:#1b4ea1 }
-    .hint{ font-size:12px; color:var(--muted) }
-    .success, .error{ padding:12px 14px; border-radius:12px; font-size:14px; display:none; }
-    .success{ background:rgba(52,211,153,.12); border:1px solid rgba(52,211,153,.35) }
-    .error{ background:rgba(251,113,133,.12); border:1px solid rgba(251,113,133,.35) }
-    .footnote{ color:var(--muted); font-size:12px; text-align:center }
-    .hide{ display:none }
-
-    .info-row{ display:flex; align-items:center; gap:10px; margin:8px 0 2px; flex-wrap:wrap; }
     .pill{
       display:inline-flex; align-items:center; gap:8px;
       padding:6px 10px; border-radius:999px; border:1px solid var(--border);
-      background:#0e1221; color:#e8e9ef; font-size:12px; text-decoration:none;
+      background:#0d1326; color:var(--text); font-size:12px; text-decoration:none;
+      white-space:nowrap;
     }
-    .pill:hover{ border-color:#2b8eff; box-shadow:0 0 0 3px rgba(43,142,255,.15) }
+
+    /* Card (RSVP) */
+    .card{
+      background:var(--card); border:1px solid var(--border);
+      border-radius:16px; padding:16px; display:grid; gap:14px;
+    }
+    .choices{display:flex; gap:10px; flex-wrap:wrap}
+    .choice{
+      flex:1 1 110px; text-align:center; padding:12px; border-radius:12px; cursor:pointer;
+      border:1px solid var(--border); user-select:none; font-weight:600;
+      background:linear-gradient(180deg, #111936, #0e142a);
+    }
+    .choice[data-val="Yes"]{box-shadow: inset 0 0 0 1px rgba(52,211,153,.35)}
+    .choice[data-val="Maybe"]{box-shadow: inset 0 0 0 1px rgba(251,191,36,.35)}
+    .choice[data-val="No"]{box-shadow: inset 0 0 0 1px rgba(251,113,133,.35)}
+    .choice.active{outline:2px solid var(--accent); outline-offset:2px}
+
+    label{font-size:13px; color:var(--muted)}
+    input, textarea{
+      width:100%; box-sizing:border-box; background:#0b1022; color:var(--text);
+      border:1px solid var(--border); border-radius:12px; padding:12px;
+      outline:none; font-size:16px;
+    }
+    input:focus, textarea:focus{border-color:var(--accent); box-shadow:0 0 0 3px rgba(43,142,255,.2)}
+    .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+    .btn{
+      padding:12px 16px; border-radius:12px; border:1px solid var(--border);
+      background:linear-gradient(180deg, #1a2140, #141a2d); color:var(--text);
+      cursor:pointer; font-weight:700;
+    }
+    .btn.primary{background:linear-gradient(180deg, #2b8eff, #1a6add); border-color:#1b4ea1; color:#fff}
+    .hint{font-size:12px; color:var(--muted)}
+    .success, .error{padding:12px 14px; border-radius:12px; font-size:14px; display:none}
+    .success{background:rgba(52,211,153,.12); border:1px solid rgba(52,211,153,.35)}
+    .error{background:rgba(251,113,133,.12); border:1px solid rgba(251,113,133,.35)}
+    .hide{display:none}
+
+    /* Desktop niceties */
+    @media (min-width:900px){
+      .wrap{max-width:900px}
+    }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <section class="hero">
-      <div class="flyer">
-        <div class="poster" id="poster">
-          <div class="slider-track" id="sliderTrack">
-            <div class="slide"><img src="./3.png" alt="Flyer 1"></div>
-            <div class="slide"><img src="./4.png" alt="Flyer 2"></div>
-            <div class="slide"><img src="./5.png" alt="Flyer 3"></div>
-          </div>
-          <button class="nav-btn prev" id="prevBtn" aria-label="Previous">‹</button>
-          <button class="nav-btn next" id="nextBtn" aria-label="Next">›</button>
-          <div class="dots" id="dots"></div>
-        </div>
-
-        <div class="card">
-          <h3 style="margin:.25rem 0 6px">RSVP</h3>
-          <div class="info-row">
-            <a class="pill" target="_blank" rel="noopener"
-               href="https://www.google.com/maps?q=5+Keith+Road,+Hopatcong,+NJ+07843">
-              📍 5 Keith Road, Hopatcong, NJ 07843 — Get Directions
-            </a>
-          </div>
-
-          <form id="rsvpForm" method="POST">
-            <input type="hidden" name="rsvp" id="rsvpInput" required />
-            <div class="choices">
-              <div class="choice" data-val="Yes">✅ Yes, I’m in</div>
-              <div class="choice" data-val="Maybe">🤔 I’ll think about it</div>
-              <div class="choice" data-val="No">❌ Sorry, I’m out</div>
-            </div>
-
-            <div class="grid-2">
-              <div>
-                <label for="name">Your name *</label>
-                <input type="text" id="name" name="name" required />
-              </div>
-              <div>
-                <label for="phone">Phone *</label>
-                <input type="tel" id="phone" name="phone" required
-                       placeholder="We’ll hit you up if anything changes" />
-              </div>
-            </div>
-
-            <div>
-              <label for="guests"># of guests</label>
-              <input type="number" min="1" max="20" id="guests" name="guests" value="1" />
-            </div>
-
-            <div>
-              <label for="music">What music do you want to play?</label>
-              <textarea id="music" name="music" rows="2"
-                placeholder="List songs, genres, or artists you want to hear"></textarea>
-            </div>
-
-            <div>
-              <label for="notes">Notes</label>
-              <textarea id="notes" name="notes" rows="3"
-                placeholder="What drinks do you like? 🍹&#10;What costume are you gonna wear? 🎭"></textarea>
-            </div>
-
-            <input type="text" name="_gotcha" class="hide" />
-
-            <div class="row">
-              <button class="btn primary" type="submit">Submit RSVP</button>
-              <button class="btn" type="reset">Reset</button>
-              <span class="hint">Confirmation will appear below.</span>
-            </div>
-
-            <div id="success" class="success">Thanks! Your RSVP was received. 🎉</div>
-            <div id="error" class="error">Hmm, something went wrong. Please try again.</div>
-          </form>
-          <div class="footnote">Your info is used only for this event.</div>
-        </div>
-      </div>
-    </section>
+  <div class="topbar">
+    <div class="brand">🎉 Party Invite</div>
+    <a class="cta" href="#rsvp">RSVP</a>
   </div>
 
-  <script>
-    const WEB_APP_URL = "https://script.google.com/macros/s/PASTE_YOUR_WEB_APP_URL_HERE/exec";
-    document.addEventListener('DOMContentLoaded', () => {
-      const form = document.getElementById('rsvpForm');
-      form.action = WEB_APP_URL;
-    });
+  <main class="wrap">
+    <!-- HERO: random image each load -->
+    <section class="hero" id="hero">
+      <figure>
+        <img id="flyer" src="" alt="Party Flyer">
+      </figure>
+      <div class="meta">
+        <a class="pill" target="_blank" rel="noopener"
+           href="https://www.google.com/maps?q=5+Keith+Road,+Hopatcong,+NJ+07843">📍 5 Keith Road, Hopatcong, NJ 07843</a>
+        <span>Tap RSVP below</span>
+      </div>
+    </section>
 
+    <!-- RSVP CARD -->
+    <section id="rsvp" class="card" aria-labelledby="rsvpTitle">
+      <h2 id="rsvpTitle" style="margin:0">RSVP</h2>
+
+      <!-- choices -->
+      <input type="hidden" name="rsvp" id="rsvpInput" />
+      <div class="choices" role="group" aria-label="RSVP options">
+        <button type="button" class="choice" data-val="Yes">✅ Yes, I’m in</button>
+        <button type="button" class="choice" data-val="Maybe">🤔 I’ll think about it</button>
+        <button type="button" class="choice" data-val="No">❌ Sorry, I’m out</button>
+      </div>
+
+      <!-- form -->
+      <form id="rsvpForm" method="POST" novalidate>
+        <div class="row" style="gap:12px; flex-wrap:wrap">
+          <div style="flex:1 1 200px">
+            <label for="name">Your name *</label>
+            <input type="text" id="name" name="name" required />
+          </div>
+          <div style="flex:1 1 200px">
+            <label for="phone">Phone *</label>
+            <input type="tel" id="phone" name="phone" required placeholder="We’ll hit you up if anything changes" />
+          </div>
+        </div>
+
+        <div>
+          <label for="guests"># of guests</label>
+          <input type="number" min="1" max="20" id="guests" name="guests" value="1" />
+        </div>
+
+        <div>
+          <label for="music">What music do you want to play?</label>
+          <textarea id="music" name="music" rows="2" placeholder="List songs, genres, or artists you want to hear"></textarea>
+        </div>
+
+        <div>
+          <label for="notes">Notes</label>
+          <textarea id="notes" name="notes" rows="3"
+            placeholder="What drinks do you like? 🍹&#10;What costume are you gonna wear? 🎭"></textarea>
+        </div>
+
+        <input type="text" name="_gotcha" class="hide" autocomplete="off" />
+        <div class="row">
+          <button class="btn primary" type="submit">Submit RSVP</button>
+          <span class="hint">No reload—confirmation shows below.</span>
+        </div>
+
+        <div id="success" class="success" role="status">Thanks! Your RSVP was received. 🎉</div>
+        <div id="error" class="error" role="alert">Hmm, something went wrong. Please try again.</div>
+      </form>
+    </section>
+  </main>
+
+  <script>
+    /* ====== Paste your Apps Script Web App URL here ====== */
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxm5IR4VIIriwVCZDBA2eSJKQUjNj18ipJdHwtVFeFEuOeOFM0Dkskk2XRbNkeEX3Y66Q/exec";
+    /* ===================================================== */
+
+    // 1) RANDOM HERO IMAGE (one of 3.png, 4.png, 5.png each load)
+    const IMAGES = ["./3.png", "./4.png", "./5.png"];
+    const flyer = document.getElementById('flyer');
+    const randomSrc = IMAGES[Math.floor(Math.random() * IMAGES.length)];
+    flyer.src = randomSrc;
+
+    // 2) RSVP choices
     const choices = document.querySelectorAll('.choice');
     const rsvpInput = document.getElementById('rsvpInput');
     choices.forEach(c => {
@@ -201,101 +194,53 @@
       });
     });
 
+    // 3) Form submit (AJAX to Apps Script)
     const form = document.getElementById('rsvpForm');
     const successEl = document.getElementById('success');
     const errorEl = document.getElementById('error');
+
+    document.addEventListener('DOMContentLoaded', () => { form.action = WEB_APP_URL; });
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       successEl.style.display = 'none';
       errorEl.style.display = 'none';
 
-      if (!rsvpInput.value) {
-        errorEl.textContent = 'Please choose Yes / No / Maybe.';
+      // Simple required checks
+      const requiredMissing = [];
+      if (!rsvpInput.value) requiredMissing.push('RSVP choice');
+      if (!form.name.value.trim()) requiredMissing.push('name');
+      if (!form.phone.value.trim()) requiredMissing.push('phone');
+
+      if (requiredMissing.length){
+        errorEl.textContent = 'Please fill: ' + requiredMissing.join(', ') + '.';
         errorEl.style.display = 'block';
         return;
       }
+
       try {
         const res = await fetch(form.action, {
           method: 'POST',
           body: new FormData(form),
           headers: { 'Accept': 'application/json' }
         });
+
         if (res.ok) {
           form.reset();
           choices.forEach(x => x.classList.remove('active'));
           rsvpInput.value = '';
           successEl.style.display = 'block';
+          // Scroll success into view (SPA feel)
+          successEl.scrollIntoView({behavior:'smooth', block:'center'});
         } else {
           errorEl.style.display = 'block';
+          errorEl.scrollIntoView({behavior:'smooth', block:'center'});
         }
       } catch (err) {
         errorEl.style.display = 'block';
+        errorEl.scrollIntoView({behavior:'smooth', block:'center'});
       }
     });
-
-    // Slider logic
-    const track = document.getElementById('sliderTrack');
-    const slides = Array.from(track.children);
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    const dotsWrap = document.getElementById('dots');
-    let index = 0;
-    const total = slides.length;
-    const AUTO_MS = 3500;
-    let autoTimer = null;
-
-    const dots = slides.map((_, i) => {
-      const b = document.createElement('button');
-      b.className = 'dot' + (i===0 ? ' active' : '');
-      b.addEventListener('click', () => goTo(i, true));
-      dotsWrap.appendChild(b);
-      return b;
-    });
-
-    function update() {
-      const shift = (index * (100 / total));
-      track.style.transform = `translateX(-${shift}%)`;
-      dots.forEach((d, i) => d.classList.toggle('active', i === index));
-    }
-    function goTo(i, pause=false) {
-      index = (i + total) % total;
-      update();
-      if (pause) restartAuto();
-    }
-    function next(){ goTo(index + 1, true); }
-    function prev(){ goTo(index - 1, true); }
-
-    nextBtn.addEventListener('click', next);
-    prevBtn.addEventListener('click', prev);
-
-    function startAuto(){ stopAuto(); autoTimer = setInterval(() => goTo(index + 1), AUTO_MS); }
-    function stopAuto(){ if (autoTimer) clearInterval(autoTimer), autoTimer = null; }
-    function restartAuto(){ startAuto(); }
-
-    const poster = document.getElementById('poster');
-    poster.addEventListener('mouseenter', stopAuto);
-    poster.addEventListener('mouseleave', startAuto);
-
-    let startX = 0, currentX = 0, dragging = false;
-    track.addEventListener('touchstart', (e) => {
-      dragging = true; startX = e.touches[0].clientX; currentX = startX; stopAuto();
-    }, {passive:true});
-    track.addEventListener('touchmove', (e) => { if(dragging) currentX = e.touches[0].clientX; }, {passive:true});
-    track.addEventListener('touchend', () => {
-      const dx = currentX - startX;
-      if (dx > 40) prev();
-      else if (dx < -40) next();
-      dragging = false; startAuto();
-    });
-
-    poster.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowRight') next();
-      if (e.key === 'ArrowLeft') prev();
-    });
-    poster.tabIndex = 0;
-
-    update(); startAuto();
   </script>
 </body>
 </html>
