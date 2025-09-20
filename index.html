@@ -11,93 +11,64 @@
       --accent:#2b8eff; --ok:#34d399; --no:#fb7185; --maybe:#fbbf24;
       --border:rgba(255,255,255,.08);
     }
-    /* Global */
     html{scroll-behavior:smooth}
     html,body{height:100%}
-    body{
-      margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, "Helvetica Neue", Arial;
-      color:var(--text); background:var(--bg);
-    }
-    a{color:inherit}
-
-    /* Container */
+    body{ margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, "Helvetica Neue", Arial;
+      color:var(--text); background:var(--bg); }
+    a{color:inherit; text-decoration:none}
     .wrap{max-width:720px; margin:0 auto; padding:16px}
-    .topbar{
-      position:sticky; top:0; z-index:10;
-      backdrop-filter: blur(6px);
+    .topbar{ position:sticky; top:0; z-index:10; backdrop-filter: blur(6px);
       background:linear-gradient(180deg, rgba(18,23,42,.85), rgba(18,23,42,.35));
-      border-bottom:1px solid var(--border);
-      display:flex; align-items:center; justify-content:space-between; gap:12px;
-      padding:10px 12px; margin-bottom:12px; border-radius:0 0 16px 16px;
-    }
+      border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; gap:12px;
+      padding:10px 12px; margin-bottom:12px; border-radius:0 0 16px 16px; }
     .brand{font-weight:700; letter-spacing:.3px}
-    .cta{
-      border:1px solid var(--border); background:var(--accent); color:white;
-      padding:10px 14px; border-radius:999px; font-weight:700; cursor:pointer;
-    }
+    .cta{ border:1px solid var(--border); background:var(--accent); color:white;
+      padding:10px 14px; border-radius:999px; font-weight:700; cursor:pointer; }
 
-    /* Hero image block */
-    .hero{
-      border:1px solid var(--border); border-radius:18px; overflow:hidden;
-      background:#000; margin-bottom:14px;
-    }
+    .hero{ border:1px solid var(--border); border-radius:18px; overflow:hidden; background:#000; margin-bottom:14px; }
     .hero figure{margin:0; display:grid; place-items:center; background:#000}
-    .hero img{
-      display:block; width:100%; height:auto; object-fit:contain; object-position:center;
-      aspect-ratio:auto; /* respect PNG’s natural ratio */
-    }
+    .hero button.img-btn{ border:0; padding:0; background:transparent; width:100%; cursor:zoom-in; }
+    .hero img{ display:block; width:100%; height:auto; object-fit:contain; object-position:center; }
     .hero .meta{
-      display:flex; gap:10px; align-items:center; justify-content:space-between;
-      padding:10px 12px; font-size:13px; color:var(--muted);
+      display:flex; gap:10px; align-items:flex-start; justify-content:space-between; flex-wrap:wrap;
+      padding:12px; font-size:13px; color:var(--muted);
       border-top:1px solid var(--border); background:#0e1428;
     }
-    .pill{
-      display:inline-flex; align-items:center; gap:8px;
-      padding:6px 10px; border-radius:999px; border:1px solid var(--border);
-      background:#0d1326; color:var(--text); font-size:12px; text-decoration:none;
-      white-space:nowrap;
-    }
+    .meta-left{display:grid; gap:6px}
+    .pill{ display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border-radius:999px;
+      border:1px solid var(--border); background:#0d1326; color:var(--text); font-size:12px; white-space:nowrap; }
+    .details{font-size:12px; color:var(--text); opacity:.9}
+    .cal-row{ display:flex; gap:8px; flex-wrap:wrap; margin-top:6px }
+    .cal-btn{ padding:6px 10px; border-radius:999px; border:1px solid var(--border); background:#0d1326; font-size:12px; }
 
-    /* Card (RSVP) */
-    .card{
-      background:var(--card); border:1px solid var(--border);
-      border-radius:16px; padding:16px; display:grid; gap:14px;
-    }
+    .modal{position:fixed; inset:0; display:none; place-items:center; background:rgba(0,0,0,.85); z-index:50;}
+    .modal.open{display:grid}
+    .modal__content{max-width:min(95vw, 1100px); max-height:95vh; position:relative;}
+    .modal__img{display:block; width:100%; height:100%; object-fit:contain; background:#000;}
+    .modal__close{position:absolute; top:10px; right:10px; border:0; border-radius:10px;
+      background:rgba(255,255,255,.12); color:#fff; padding:8px 10px; cursor:pointer;}
+
+    .card{background:var(--card); border:1px solid var(--border); border-radius:16px; padding:16px; display:grid; gap:14px;}
     .choices{display:flex; gap:10px; flex-wrap:wrap}
-    .choice{
-      flex:1 1 110px; text-align:center; padding:12px; border-radius:12px; cursor:pointer;
-      border:1px solid var(--border); user-select:none; font-weight:600;
-      background:linear-gradient(180deg, #111936, #0e142a);
-    }
-    .choice[data-val="Yes"]{box-shadow: inset 0 0 0 1px rgba(52,211,153,.35)}
-    .choice[data-val="Maybe"]{box-shadow: inset 0 0 0 1px rgba(251,191,36,.35)}
-    .choice[data-val="No"]{box-shadow: inset 0 0 0 1px rgba(251,113,133,.35)}
-    .choice.active{outline:2px solid var(--accent); outline-offset:2px}
+    .choice{ flex:1 1 110px; text-align:center; padding:12px; border-radius:12px; cursor:pointer;
+      border:1px solid var(--border); user-select:none; font-weight:700;
+      background:linear-gradient(180deg, #111936, #0e142a); color:var(--text); transition:transform .06s ease; }
+    .choice[aria-pressed="true"]{ outline:2px solid var(--accent); outline-offset:2px; transform:translateY(-1px) }
+    .choice .state{display:block; font-size:11px; color:var(--muted); margin-top:4px}
+    .choice[aria-pressed="true"] .state{color:#c9d2ea}
 
     label{font-size:13px; color:var(--muted)}
-    input, textarea{
-      width:100%; box-sizing:border-box; background:#0b1022; color:var(--text);
-      border:1px solid var(--border); border-radius:12px; padding:12px;
-      outline:none; font-size:16px;
-    }
+    input, textarea{ width:100%; box-sizing:border-box; background:#0b1022; color:var(--text);
+      border:1px solid var(--border); border-radius:12px; padding:12px; font-size:16px; }
     input:focus, textarea:focus{border-color:var(--accent); box-shadow:0 0 0 3px rgba(43,142,255,.2)}
     .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
-    .btn{
-      padding:12px 16px; border-radius:12px; border:1px solid var(--border);
-      background:linear-gradient(180deg, #1a2140, #141a2d); color:var(--text);
-      cursor:pointer; font-weight:700;
-    }
+    .btn{ padding:12px 16px; border-radius:12px; border:1px solid var(--border);
+      background:linear-gradient(180deg, #1a2140, #141a2d); color:var(--text); cursor:pointer; font-weight:700; }
+    .btn:disabled{opacity:.6; cursor:not-allowed}
     .btn.primary{background:linear-gradient(180deg, #2b8eff, #1a6add); border-color:#1b4ea1; color:#fff}
-    .hint{font-size:12px; color:var(--muted)}
-    .success, .error{padding:12px 14px; border-radius:12px; font-size:14px; display:none}
+    .success,.error{padding:12px 14px; border-radius:12px; font-size:14px; display:none}
     .success{background:rgba(52,211,153,.12); border:1px solid rgba(52,211,153,.35)}
     .error{background:rgba(251,113,133,.12); border:1px solid rgba(251,113,133,.35)}
-    .hide{display:none}
-
-    /* Desktop niceties */
-    @media (min-width:900px){
-      .wrap{max-width:900px}
-    }
   </style>
 </head>
 <body>
@@ -108,37 +79,52 @@
 
   <main class="wrap">
     <!-- HERO: random image each load -->
-    <section class="hero" id="hero">
+    <section class="hero">
       <figure>
-        <img id="flyer" src="" alt="Party Flyer">
+        <button class="img-btn" id="openModalBtn" aria-label="Open flyer full size">
+          <img id="flyer" src="" alt="Party Flyer">
+        </button>
       </figure>
       <div class="meta">
-        <a class="pill" target="_blank" rel="noopener"
-           href="https://www.google.com/maps?q=5+Keith+Road,+Hopatcong,+NJ+07843">📍 5 Keith Road, Hopatcong, NJ 07843</a>
+        <div class="meta-left">
+          <a class="pill" target="_blank" rel="noopener"
+             href="https://www.google.com/maps?q=5+Keith+Road,+Hopatcong,+NJ+07843">📍 5 Keith Road, Hopatcong, NJ 07843</a>
+          <div class="details">
+            <div><strong>Saturday, November 1, 2025 @ 7:00 PM</strong> — Halloween Weekend</div>
+            <div><strong>Dress Code:</strong> Costume required × Dress to impress</div>
+          </div>
+          <div class="cal-row">
+            <a id="gcalLink" class="cal-btn" target="_blank" rel="noopener">➕ Add to Google Calendar</a>
+            <a id="icsLink" class="cal-btn" download="Halloween-Party.ics">📅 Download .ics</a>
+          </div>
+        </div>
         <span>Tap RSVP below</span>
       </div>
     </section>
 
     <!-- RSVP CARD -->
-    <section id="rsvp" class="card" aria-labelledby="rsvpTitle">
-      <h2 id="rsvpTitle" style="margin:0">RSVP</h2>
-
-      <!-- choices -->
+    <section id="rsvp" class="card">
+      <h2>RSVP</h2>
       <input type="hidden" name="rsvp" id="rsvpInput" />
-      <div class="choices" role="group" aria-label="RSVP options">
-        <button type="button" class="choice" data-val="Yes">✅ Yes, I’m in</button>
-        <button type="button" class="choice" data-val="Maybe">🤔 I’ll think about it</button>
-        <button type="button" class="choice" data-val="No">❌ Sorry, I’m out</button>
+      <div class="choices">
+        <button type="button" class="choice" data-val="Yes" aria-pressed="false">
+          ✅ Yes, I’m in <span class="state">Tap to select</span>
+        </button>
+        <button type="button" class="choice" data-val="Maybe" aria-pressed="false">
+          🤔 I’ll think about it <span class="state">Tap to select</span>
+        </button>
+        <button type="button" class="choice" data-val="No" aria-pressed="false">
+          ❌ Sorry, I’m out <span class="state">Tap to select</span>
+        </button>
       </div>
 
-      <!-- form -->
       <form id="rsvpForm" method="POST" novalidate>
-        <div class="row" style="gap:12px; flex-wrap:wrap">
-          <div style="flex:1 1 200px">
+        <div class="row">
+          <div style="flex:1">
             <label for="name">Your name *</label>
             <input type="text" id="name" name="name" required />
           </div>
-          <div style="flex:1 1 200px">
+          <div style="flex:1">
             <label for="phone">Phone *</label>
             <input type="tel" id="phone" name="phone" required placeholder="We’ll hit you up if anything changes" />
           </div>
@@ -160,85 +146,175 @@
             placeholder="What drinks do you like? 🍹&#10;What costume are you gonna wear? 🎭"></textarea>
         </div>
 
-        <input type="text" name="_gotcha" class="hide" autocomplete="off" />
         <div class="row">
-          <button class="btn primary" type="submit">Submit RSVP</button>
-          <span class="hint">No reload—confirmation shows below.</span>
+          <button class="btn primary" type="submit" id="submitBtn">Submit RSVP</button>
         </div>
-
-        <div id="success" class="success" role="status">Thanks! Your RSVP was received. 🎉</div>
-        <div id="error" class="error" role="alert">Hmm, something went wrong. Please try again.</div>
+        <div id="success" class="success"></div>
+        <div id="error" class="error">Hmm, something went wrong. Please try again.</div>
       </form>
     </section>
   </main>
 
-  <script>
-    /* ====== Paste your Apps Script Web App URL here ====== */
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxm5IR4VIIriwVCZDBA2eSJKQUjNj18ipJdHwtVFeFEuOeOFM0Dkskk2XRbNkeEX3Y66Q/exec";
-    /* ===================================================== */
+  <!-- Full-size image modal -->
+  <div id="flyerModal" class="modal" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="modal__content">
+      <img id="flyerModalImg" class="modal__img" src="" alt="Party Flyer full size">
+      <button class="modal__close" id="modalClose" aria-label="Close">✕</button>
+    </div>
+  </div>
 
-    // 1) RANDOM HERO IMAGE (one of 3.png, 4.png, 5.png each load)
+  <script>
+    /* === Your deployed Apps Script web app URL === */
+    window.__WEB_APP_URL__ = window.__WEB_APP_URL__ ||
+      "https://script.google.com/macros/s/AKfycbxm5IR4VIIriwVCZDBA2eSJKQUjNj18ipJdHwtVFeFEuOeOFM0Dkskk2XRbNkeEX3Y66Q/exec";
+
+    /* Random hero image (ensure 3.png, 4.png, 5.png are beside this file) */
     const IMAGES = ["./3.png", "./4.png", "./5.png"];
     const flyer = document.getElementById('flyer');
-    const randomSrc = IMAGES[Math.floor(Math.random() * IMAGES.length)];
-    flyer.src = randomSrc;
+    flyer.src = IMAGES[Math.floor(Math.random() * IMAGES.length)];
 
-    // 2) RSVP choices
+    /* Full-size modal */
+    const flyerModal = document.getElementById('flyerModal');
+    const flyerModalImg = document.getElementById('flyerModalImg');
+    const openModalBtn = document.getElementById('openModalBtn');
+    const modalClose = document.getElementById('modalClose');
+
+    const openModal = () => {
+      flyerModalImg.src = flyer.src;
+      flyerModal.classList.add('open');
+      flyerModal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+      modalClose.focus();
+    };
+    const closeModal = () => {
+      flyerModal.classList.remove('open');
+      flyerModal.setAttribute('aria-hidden', 'true');
+      flyerModalImg.src = '';
+      document.body.style.overflow = '';
+      openModalBtn.focus();
+    };
+    openModalBtn.addEventListener('click', openModal);
+    modalClose.addEventListener('click', closeModal);
+    flyerModal.addEventListener('click', (e) => { if (e.target === flyerModal) closeModal(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && flyerModal.classList.contains('open')) closeModal(); });
+
+    /* RSVP choices */
     const choices = document.querySelectorAll('.choice');
     const rsvpInput = document.getElementById('rsvpInput');
     choices.forEach(c => {
       c.addEventListener('click', () => {
-        choices.forEach(x => x.classList.remove('active'));
-        c.classList.add('active');
+        choices.forEach(x => { x.setAttribute('aria-pressed','false'); x.querySelector('.state').textContent='Tap to select'; });
+        c.setAttribute('aria-pressed','true');
+        c.querySelector('.state').textContent='Selected ✓';
         rsvpInput.value = c.dataset.val;
       });
     });
 
-    // 3) Form submit (AJAX to Apps Script)
+    /* Calendar links (7:00 PM ET => 23:00Z; 4-hour party) */
+    const title   = 'Halloween Party';
+    const startZ  = '20251101T230000Z';
+    const endZ    = '20251102T030000Z';
+    const loc     = '5 Keith Road, Hopatcong, NJ 07843';
+    const details = 'Halloween Weekend. Dress Code: Costume required × Dress to impress.';
+
+    const gcal = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${startZ}/${endZ}&details=${encodeURIComponent(details)}&location=${encodeURIComponent(loc)}`;
+    document.getElementById('gcalLink').href = gcal;
+
+    const icsContent =
+`BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Party RSVP//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:${Date.now()}@party
+DTSTAMP:${startZ}
+DTSTART:${startZ}
+DTEND:${endZ}
+SUMMARY:${title}
+DESCRIPTION:${details}
+LOCATION:${loc}
+END:VEVENT
+END:VCALENDAR`;
+    const icsBlob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+    document.getElementById('icsLink').href = URL.createObjectURL(icsBlob);
+
+    /* Submit (strict success only if server says a row appended) */
     const form = document.getElementById('rsvpForm');
     const successEl = document.getElementById('success');
     const errorEl = document.getElementById('error');
+    const submitBtn = document.getElementById('submitBtn');
+    form.action = window.__WEB_APP_URL__;
 
-    document.addEventListener('DOMContentLoaded', () => { form.action = WEB_APP_URL; });
+    // helper: mark/unmark invalid
+    function markInvalid(el, on=true){
+      el.style.boxShadow = on ? '0 0 0 3px rgba(251,113,133,.35)' : '';
+      el.style.borderColor = on ? '#fb7185' : '';
+    }
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      successEl.style.display = 'none';
-      errorEl.style.display = 'none';
+      successEl.style.display = 'none'; errorEl.style.display = 'none';
+      markInvalid(form.name, false); markInvalid(form.phone, false);
 
-      // Simple required checks
-      const requiredMissing = [];
-      if (!rsvpInput.value) requiredMissing.push('RSVP choice');
-      if (!form.name.value.trim()) requiredMissing.push('name');
-      if (!form.phone.value.trim()) requiredMissing.push('phone');
-
-      if (requiredMissing.length){
-        errorEl.textContent = 'Please fill: ' + requiredMissing.join(', ') + '.';
+      // Only name + phone required; default RSVP if missing
+      if (!rsvpInput.value) {
+        rsvpInput.value = 'Maybe';
+        const maybeBtn = Array.from(choices).find(b => b.dataset.val === 'Maybe');
+        if (maybeBtn) {
+          choices.forEach(x => x.setAttribute('aria-pressed','false'));
+          maybeBtn.setAttribute('aria-pressed','true');
+          const st = maybeBtn.querySelector('.state'); if (st) st.textContent = 'Selected ✓';
+        }
+      }
+      let hasError = false;
+      if (!form.name.value.trim()) { markInvalid(form.name, true); hasError = true; }
+      if (!form.phone.value.trim()) { markInvalid(form.phone, true); hasError = true; }
+      if (hasError) {
+        errorEl.textContent = 'Please fill name and phone.';
         errorEl.style.display = 'block';
         return;
       }
 
-      try {
-        const res = await fetch(form.action, {
-          method: 'POST',
-          body: new FormData(form),
-          headers: { 'Accept': 'application/json' }
-        });
+      const originalLabel = submitBtn.textContent;
+      submitBtn.disabled = true; submitBtn.textContent = 'Submitting…';
 
-        if (res.ok) {
+      try {
+        const fd = new FormData(form);
+        fd.append('image_shown', flyer.src.split('/').pop());
+
+        // DEBUG: see exactly what we send
+        for (const [k,v] of fd.entries()) console.log('FD', k, v);
+
+        const res = await fetch(form.action, { method:'POST', body: fd });
+        const text = await res.text();
+        console.log('Apps Script response text:', text);
+        let json = {}; try { json = JSON.parse(text); } catch {}
+
+        if (res.ok && json.ok === true && json.appended === true) {
+          const name = form.name.value.trim();
+          const choice = rsvpInput.value;
+
           form.reset();
-          choices.forEach(x => x.classList.remove('active'));
+          choices.forEach(x => x.setAttribute('aria-pressed','false'));
           rsvpInput.value = '';
+
+          submitBtn.textContent = "RSVP’d! 🎉";
+          successEl.textContent = `Thanks${name ? ' ' + name : ''}! We got your RSVP: ${choice}. (Row #${json.rowNumber || '?'})`;
           successEl.style.display = 'block';
-          // Scroll success into view (SPA feel)
           successEl.scrollIntoView({behavior:'smooth', block:'center'});
+
+          setTimeout(() => { submitBtn.disabled = false; submitBtn.textContent = originalLabel; }, 2400);
         } else {
+          errorEl.textContent = 'Submission failed. ' + (json.error ? ('Details: ' + json.error) : 'No append reported.');
           errorEl.style.display = 'block';
-          errorEl.scrollIntoView({behavior:'smooth', block:'center'});
+          submitBtn.disabled = false; submitBtn.textContent = originalLabel;
         }
       } catch (err) {
+        console.error('Fetch error:', err);
+        errorEl.textContent = 'Network error. Please try again.';
         errorEl.style.display = 'block';
-        errorEl.scrollIntoView({behavior:'smooth', block:'center'});
+        submitBtn.disabled = false; submitBtn.textContent = originalLabel;
       }
     });
   </script>
