@@ -1,0 +1,36 @@
+name: Apply bilingual invite
+on:
+  push:
+    paths:
+      - '2026/lang-patch-trigger.txt'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add language switch
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('2026/index.html')
+          s=p.read_text()
+          if './i18n.css?v=1' not in s:
+              s=s.replace('</head>','<link rel="stylesheet" href="./i18n.css?v=1"></head>')
+          old='<header class="top"><div class="shell"><a class="brand" href="#top">♛ Halloween · 10.31.26</a><a class="btn" href="#rsvp">RSVP now</a></div></header>'
+          new='<div class="sticky-stack"><div class="langbar" role="navigation" aria-label="Language selector"><div class="langbar-inner"><div class="lang-title">🌎 LANGUAGE / IDIOMA</div><button class="lang-btn" id="langEn" type="button" aria-pressed="true">ENGLISH</button><button class="lang-btn" id="langEs" type="button" aria-pressed="false">ESPAÑOL</button></div></div>'+old+'</div>'
+          if 'id="langEn"' not in s:
+              if old not in s: raise SystemExit('Header target not found')
+              s=s.replace(old,new,1)
+          if './i18n.js?v=1' not in s:
+              s=s.replace('</body>','<script src="./i18n.js?v=1"></script></body>')
+          p.write_text(s)
+          PY
+      - name: Commit patch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add 2026/index.html
+          git diff --cached --quiet || git commit -m 'Add English Spanish language switch to 2026 invite'
+          git push
