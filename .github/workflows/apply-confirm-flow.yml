@@ -1,0 +1,48 @@
+name: Apply RSVP confirmation flow
+on:
+  push:
+    paths:
+      - '2026/confirm-patch-trigger.txt'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch invite confirmation flow
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('2026/index.html')
+          s=p.read_text()
+          if './confirm.css?v=1' not in s:
+              s=s.replace('</head>','<link rel="stylesheet" href="./confirm.css?v=1"></head>',1)
+          modal='''<div class="confirm-overlay" id="rsvpConfirm" role="dialog" aria-modal="true" aria-labelledby="confirmTitle" aria-describedby="confirmText"><div class="confirm-card"><button class="confirm-x" id="confirmX" type="button" aria-label="Close">×</button><div class="confirm-emoji" id="confirmEmoji">🐒🎉</div><h3 id="confirmTitle">You're in!</h3><p id="confirmText">Can't wait to party with you. Bring friends — share the invite.</p><div class="confirm-actions"><button class="confirm-share" id="confirmShare" type="button">📲 Share the invite</button><button class="confirm-copy" id="confirmCopy" type="button">🔗 Copy link</button><button class="confirm-copy confirm-done" id="confirmDone" type="button">Done</button></div></div></div>'''
+          if 'id="rsvpConfirm"' not in s:
+              anchor='<div class="modal" id="modal">'
+              start=s.find(anchor)
+              if start<0: raise SystemExit('Flyer modal not found')
+              end=s.find('</div><script>',start)
+              if end<0: raise SystemExit('Flyer modal end not found')
+              end += len('</div>')
+              s=s[:end]+modal+s[end:]
+          old="formEl.reset();rvEl.value='';document.querySelectorAll('.choice').forEach(x=>x.setAttribute('aria-pressed','false'));okEl.textContent=`You're officially a Party Animal. 🐒👑 RSVP saved${j.id?' · '+j.id:''}.`;okEl.style.display='block';okEl.scrollIntoView({behavior:'smooth',block:'nearest'});submitEl.textContent='RSVP’d! 🎉';"
+          new="const submittedStatus=rvEl.value||'Maybe';formEl.reset();rvEl.value='';document.querySelectorAll('.choice').forEach(x=>x.setAttribute('aria-pressed','false'));okEl.style.display='none';submitEl.textContent='RSVP’d! 🎉';window.showRsvpConfirmation?.(submittedStatus);"
+          if old in s:
+              s=s.replace(old,new,1)
+          elif 'window.showRsvpConfirmation?.(submittedStatus)' not in s:
+              raise SystemExit('RSVP success block not found')
+          if './confirm.js?v=1' not in s:
+              marker='<script src="./i18n.js?v=1"></script>'
+              if marker not in s: raise SystemExit('i18n script marker not found')
+              s=s.replace(marker,marker+'<script src="./confirm.js?v=1"></script>',1)
+          p.write_text(s)
+          PY
+      - name: Commit patch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add 2026/index.html
+          git diff --cached --quiet || git commit -m 'Add bilingual RSVP share confirmation modal'
+          git push
