@@ -1,0 +1,16 @@
+(()=>{
+const overlay=document.getElementById('rsvpConfirm'),title=document.getElementById('confirmTitle'),text=document.getElementById('confirmText'),emoji=document.getElementById('confirmEmoji'),shareBtn=document.getElementById('confirmShare'),copyBtn=document.getElementById('confirmCopy'),doneBtn=document.getElementById('confirmDone'),xBtn=document.getElementById('confirmX');
+let lastFocus=null;
+const copy={
+  en:{Yes:{e:'🐒🎉',t:"You're in!",p:"Can't wait to party with you. Bring friends — share the invite."},Maybe:{e:'👀🐒',t:'Maybe we’ll see you!',p:'Your friends might be ready to party — send them the invite.'},No:{e:'🥲🐒',t:"We'll miss you!",p:'Maybe your friends still want in — send them the invite.'},share:'📲 Share the invite',copy:'🔗 Copy link',done:'Done',copied:'✓ Link copied!'},
+  es:{Yes:{e:'🐒🎉',t:'¡Ya estás dentro!',p:'No vemos la hora de festejar contigo. Trae amigos — comparte la invitación.'},Maybe:{e:'👀🐒',t:'¡Tal vez nos vemos!',p:'Quizás tus amigos sí se apuntan — mándales la invitación.'},No:{e:'🥲🐒',t:'¡Te vamos a extrañar!',p:'Quizás tus amigos quieran venir — mándales la invitación.'},share:'📲 Compartir invitación',copy:'🔗 Copiar enlace',done:'Listo',copied:'✓ ¡Enlace copiado!'}
+};
+function lang(){return document.documentElement.lang==='es'?'es':'en'}
+function inviteUrl(){const u=new URL(location.origin+location.pathname);if(lang()==='es')u.searchParams.set('lang','es');return u.toString()}
+function shareText(){return lang()==='es'?'Fiesta de Halloween de King Julien y Sus Animales 🎃🐒 · 31 de octubre · Hopatcong. RSVP aquí:':'King Julien & His Party Animals Halloween Party 🎃🐒 · Oct 31 · Hopatcong. RSVP here:'}
+function close(){overlay.classList.remove('open');document.body.style.overflow='';lastFocus?.focus?.()}
+async function copyLink(){const url=inviteUrl();try{await navigator.clipboard.writeText(url)}catch{const ta=document.createElement('textarea');ta.value=url;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand('copy')}catch{}ta.remove()}const c=copy[lang()];copyBtn.textContent=c.copied;setTimeout(()=>copyBtn.textContent=c.copy,1800)}
+async function share(){const url=inviteUrl(),c=copy[lang()];if(navigator.share){try{await navigator.share({title:document.title,text:shareText(),url});return}catch(e){if(e?.name==='AbortError')return}}await copyLink();shareBtn.textContent=c.copied;setTimeout(()=>shareBtn.textContent=c.share,1800)}
+window.showRsvpConfirmation=status=>{const l=lang(),c=copy[l],m=c[status]||c.Maybe;lastFocus=document.activeElement;emoji.textContent=m.e;title.textContent=m.t;text.textContent=m.p;shareBtn.textContent=c.share;copyBtn.textContent=c.copy;doneBtn.textContent=c.done;xBtn.setAttribute('aria-label',l==='es'?'Cerrar':'Close');overlay.classList.add('open');document.body.style.overflow='hidden';setTimeout(()=>shareBtn.focus(),30)};
+shareBtn.addEventListener('click',share);copyBtn.addEventListener('click',copyLink);doneBtn.addEventListener('click',close);xBtn.addEventListener('click',close);overlay.addEventListener('click',e=>{if(e.target===overlay)close()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&overlay.classList.contains('open'))close()});
+})();
