@@ -1,1 +1,1 @@
-apply bilingual RSVP confirmation share modal
+apply bilingual RSVP confirmation share modal v2
