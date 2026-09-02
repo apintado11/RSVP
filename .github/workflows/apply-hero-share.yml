@@ -1,0 +1,38 @@
+name: Apply hero share button
+on:
+  push:
+    paths:
+      - '2026/hero-share-trigger.txt'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch invite
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('2026/index.html')
+          s=p.read_text()
+          if './hero-share.css?v=1' not in s:
+              s=s.replace('</head>','<link rel="stylesheet" href="./hero-share.css?v=1"></head>',1)
+          if 'id="heroShare"' not in s:
+              needle='</button></div></div><div class="count">'
+              repl='</button></div></div><div class="hero-share-wrap"><button class="hero-share-btn" id="heroShare" type="button">📲 SHARE THE INVITE</button></div><div class="count">'
+              if needle not in s: raise SystemExit('Flyer insertion point not found')
+              s=s.replace(needle,repl,1)
+          if './hero-share.js?v=1' not in s:
+              marker='<script src="./confirm.js?v=1"></script>'
+              if marker not in s: raise SystemExit('confirm.js marker not found')
+              s=s.replace(marker,marker+'<script src="./hero-share.js?v=1"></script>',1)
+          p.write_text(s)
+          PY
+      - name: Commit patch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add 2026/index.html
+          git diff --cached --quiet || git commit -m 'Add prominent bilingual share button by flyer'
+          git push
