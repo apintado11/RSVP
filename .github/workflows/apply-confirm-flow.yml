@@ -27,8 +27,11 @@ jobs:
               if end<0: raise SystemExit('Flyer modal end not found')
               end += len('</div>')
               s=s[:end]+modal+s[end:]
-          old="formEl.reset();rvEl.value='';document.querySelectorAll('.choice').forEach(x=>x.setAttribute('aria-pressed','false'));okEl.textContent=`You're officially a Party Animal. 🐒👑 RSVP saved${j.id?' · '+j.id:''}.`;okEl.style.display='block';okEl.scrollIntoView({behavior:'smooth',block:'nearest'});submitEl.textContent='RSVP’d! 🎉';"
-          new="const submittedStatus=rvEl.value||'Maybe';formEl.reset();rvEl.value='';document.querySelectorAll('.choice').forEach(x=>x.setAttribute('aria-pressed','false'));okEl.style.display='none';submitEl.textContent='RSVP’d! 🎉';window.showRsvpConfirmation?.(submittedStatus);"
+          old="""formEl.reset();rvEl.value='';document.querySelectorAll('.choice').forEach(x=>x.setAttribute('aria-pressed','false'));
+    okEl.textContent=`You're officially a Party Animal. 🐒👑 RSVP saved${j.id?' · '+j.id:''}.`;
+    okEl.style.display='block';okEl.scrollIntoView({behavior:'smooth',block:'nearest'});submitEl.textContent='RSVP’d! 🎉';"""
+          new="""const submittedStatus=rvEl.value||'Maybe';formEl.reset();rvEl.value='';document.querySelectorAll('.choice').forEach(x=>x.setAttribute('aria-pressed','false'));
+    okEl.style.display='none';submitEl.textContent='RSVP’d! 🎉';window.showRsvpConfirmation?.(submittedStatus);"""
           if old in s:
               s=s.replace(old,new,1)
           elif 'window.showRsvpConfirmation?.(submittedStatus)' not in s:
